@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useCalendarStore } from '@/stores/calendar';
-import { formatCurrency } from '@/utils';
+import { formatCurrency } from '@/utils/calendar-utils';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { ChartBarIcon, ArrowTrendingUpIcon, ChartPieIcon, BanknotesIcon } from '@/ui/icons';

@@ -10,7 +10,7 @@ import {
   ArrowPathIcon,
   FlagIcon,
   LockClosedIcon,
-} from '@heroicons/vue/24/outline';
+} from '@/ui/icons';
 
 const router = useRouter();
 

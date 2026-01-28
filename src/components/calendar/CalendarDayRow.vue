@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { atNoon, isSameDay } from '@/utils';
-import type { CalendarDay } from '@/types.p';
+import { atNoon, isSameDay } from '@/utils/calendar-utils';
+import type { CalendarDay } from '@/types/types.p';
 import CalendarEventDay from '@/components/calendar/CalendarEventDay.vue';
 import CalendarSummaryDay from '@/components/calendar/CalendarSummaryDay.vue';
 import { useCalendarStore } from '@/stores/calendar';

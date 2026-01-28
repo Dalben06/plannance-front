@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { CalendarDay, CalendarEvent } from '@/types.p';
-import { buildMonthGrid, parseDate, toKey } from '@/utils';
+import type { CalendarDay, CalendarEvent } from '@/types/types.p';
+import { buildMonthGrid, parseDate, toKey } from '@/utils/calendar-utils';
 import { computed } from 'vue';
 import CalendarDayRow from '@/components/calendar/CalendarDayRow.vue';
 import { storeToRefs } from 'pinia';

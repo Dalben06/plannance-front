@@ -1,7 +1,7 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
-import type { CalendarEvent } from '@/types.p'
-import { generateMockCalendarEvents } from '@/mocks/calendarMocks'
+import type { CalendarEvent } from '@/types/types.p'
+// import { generateMockCalendarEvents } from '@/mocks/calendarMocks'
 
 export const useCalendarStore = defineStore('calendar', () => {
   const events = ref<CalendarEvent[]>([])
@@ -13,22 +13,11 @@ export const useCalendarStore = defineStore('calendar', () => {
   })
 
   function goToday() {
-    const today = new Date()
-    changeMonth(today.getMonth());
+    month.value = new Date().getMonth();
   }
 
-  function changeMonth(newMonth: number) {
-    month.value = newMonth
-    fetchingEvents.value = true;
-    // Simulate fetching delay
-    setTimeout(() => {
-      fetchingEvents.value = false;
-      getEventsFromMonth();
-    }, 15000);
-
-  }
   function getEventsFromMonth() {
-    events.value = generateMockCalendarEvents(month.value); // Fetch or filter events for the current month
+    events.value = []; // Fetch or filter events for the current month
   }
   const expenses = computed(() => {
     return sumAmounts(events.value.filter(event => event.type === 'debit'))
@@ -42,5 +31,11 @@ export const useCalendarStore = defineStore('calendar', () => {
     return events.reduce((sum, event) => sum + event.amount, 0)
   }
 
-  return { events, month, date, goToday, changeMonth, expenses, income, isLoading  }
+  watch(month, async () => {
+    fetchingEvents.value = true;
+    await getEventsFromMonth();
+    fetchingEvents.value = false;
+  })
+
+  return { events, month, date, goToday, expenses, income, isLoading  }
 })

@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import CalendarHeader from '@/components/calendar/CalendarHeader.vue';
 import CalendarGrid from '@/components/calendar/CalendarGrid.vue';
-import { addDays, makeDate, startOfWeek } from '@/utils';
+import { addDays, makeDate, startOfWeek } from '@/utils/calendar-utils';
 import { useCalendarStore } from '@/stores/calendar';
 import { storeToRefs } from 'pinia';
 

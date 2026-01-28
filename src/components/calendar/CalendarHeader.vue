@@ -13,11 +13,11 @@ const props = withDefaults(
 const calendarStore = useCalendarStore();
 const { month: currentMonth , isLoading} = storeToRefs(calendarStore);
 function prevMonth() {
-  calendarStore.changeMonth(currentMonth.value - 1);
+  calendarStore.month = currentMonth.value - 1;
 }
 
 function nextMonth() {
-  calendarStore.changeMonth(currentMonth.value + 1);
+  calendarStore.month = currentMonth.value + 1
 }
 
 function goToday() {

@@ -19,4 +19,11 @@ export {
   UserPlusIcon,
   CalendarIcon,
   ArrowLeftEndOnRectangleIcon,
+  TagIcon,
+  ArrowPathIcon,
+  FlagIcon,
+  BoltIcon,
+  HomeIcon,
+  MagnifyingGlassIcon,
+  ReceiptPercentIcon,
 } from '@heroicons/vue/24/outline';

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { CalendarEvent } from '@/types.p';
+import type { CalendarEvent } from '@/types/types.p';
 
 const props = defineProps<{
   events: CalendarEvent[];
