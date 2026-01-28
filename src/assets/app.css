@@ -1,0 +1,41 @@
+/* src/assets/app.css */
+@import "tailwindcss";
+@layer components {
+
+  /* Wider default container (bigger than max-w-6xl) */
+  .pl-container {
+    @apply mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8;
+  }
+
+}
+@theme {
+  /* Colors (creates utilities like bg-bg, text-fg, from-brand-500, etc.) */
+  --color-bg: rgb(11 18 32);
+  --color-surface-1: rgb(16 24 39);
+  --color-surface-2: rgb(20 30 48);
+  --color-fg: rgb(233 238 252);
+  --color-muted: rgb(233 238 252 / 0.72);
+
+  --color-brand-500: rgb(96 165 250);
+  --color-violet-500: rgb(167 139 250);
+  --color-accent-500: rgb(34 211 238);
+
+  --color-success-500: rgb(34 197 94);
+  --color-warning-500: rgb(245 158 11);
+  --color-danger-500: rgb(251 113 133);
+
+  /* Radius (creates rounded-card, rounded-pill, etc.) */
+  --radius-card: 24px;
+  --radius-pill: 999px;
+
+  /* Shadows (creates shadow-card, shadow-soft, etc.) */
+  --shadow-soft: 0 8px 24px rgb(0 0 0 / 0.25);
+  --shadow-card: 0 18px 60px rgb(0 0 0 / 0.35);
+
+  /* Font */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter,
+    Arial, sans-serif;
+
+  /* Motion */
+  --ease-smooth: cubic-bezier(.2, .8, .2, 1);
+}

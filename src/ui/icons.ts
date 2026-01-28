@@ -1,0 +1,22 @@
+// src/ui/icons.ts
+export {
+  CalendarDaysIcon,
+  ChartBarIcon,
+  Cog6ToothIcon,
+  PlusIcon,
+  ArrowTrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ScaleIcon,
+  BanknotesIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChartPieIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
+  UserIcon,
+  ArrowRightIcon,
+  ShieldCheckIcon,
+  UserPlusIcon,
+  CalendarIcon,
+  ArrowLeftEndOnRectangleIcon,
+} from '@heroicons/vue/24/outline';
