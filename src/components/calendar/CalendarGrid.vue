@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 
 import CalendarDayRow from '@/components/calendar/CalendarDayRow.vue';
 import { useCalendarStore } from '@/stores/calendar';
-import { useCalendarGridState } from '@/composable/useCalendarGridState';
+import { useCalendarGridState } from '@/composable/calendar/useCalendarGridState';
 
 const props = defineProps<{
   weekStartsOn: 0 | 1;

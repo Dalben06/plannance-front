@@ -1,8 +1,7 @@
 import { computed, unref, type ComputedRef, type Ref } from 'vue';
-import type { CalendarDay, CalendarEvent } from '@/types/types.p';
+import type { CalendarDay, CalendarEvent, WeekStartsOn } from '@/types/types.p';
 import { buildMonthGrid, parseDate, toKey } from '@/utils/calendar-utils';
 
-export type WeekStartsOn = 0 | 1;
 
 export type CalendarGridUtils = {
   buildMonthGrid: (date: Date, weekStartsOn: WeekStartsOn) => Date[];

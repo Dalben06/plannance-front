@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { effectScope, nextTick, ref, type Ref } from 'vue';
-import type { CalendarEvent } from '@/types/types.p';
-import { useCalendarGridState } from '@/composable/useCalendarGridState';
-
-type WeekStartsOn = 0 | 1;
+import type { CalendarEvent, WeekStartsOn } from '@/types/types.p';
+import { useCalendarGridState } from '@/composable/calendar/useCalendarGridState';
 
 function toKeyUtc(d: Date): string {
   const y = d.getUTCFullYear();

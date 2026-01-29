@@ -1,4 +1,4 @@
-export type WeekStartsOn = 0 | 1;
+import type { WeekStartsOn } from "@/types/types.p";
 
 export function normalizeToNoon(date: Date): Date {
   const next = new Date(date.getTime());

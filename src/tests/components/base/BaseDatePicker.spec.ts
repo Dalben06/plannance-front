@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import BaseDatePicker from '@/components/base/BaseDatePicker.vue'; // adjust path if needed
-
-type WeekStartsOn = 0 | 1;
+import type { WeekStartsOn } from '@/types/types.p';
 
 type BaseDatePickerProps = {
   modelValue: string | Date | null | undefined;

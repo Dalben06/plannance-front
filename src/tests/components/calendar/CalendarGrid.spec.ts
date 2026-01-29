@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { defineComponent, h, ref, nextTick, type Ref, type PropType } from 'vue';
-import type { CalendarDay, CalendarEvent } from '@/types/types.p';
+import type { CalendarDay, CalendarEvent, WeekStartsOn } from '@/types/types.p';
 
 type CalendarStoreLike = {
   date: Ref<Date>;
@@ -19,7 +19,6 @@ vi.mock('pinia', () => ({
   storeToRefs: (store: CalendarStoreLike) => store,
 }));
 
-type WeekStartsOn = 0 | 1;
 const buildMonthGridMock = vi.fn<(d: Date, w: WeekStartsOn) => Date[]>();
 const parseDateMock = vi.fn<(v: Date | string) => Date>();
 const toKeyMock = vi.fn<(d: Date) => string>();

@@ -11,8 +11,8 @@ import {
   isSameCalendarDay,
   normalizeToNoon,
   parseDateValue,
-  type WeekStartsOn,
 } from './date-picker/datePickerUtils';
+import type { WeekStartsOn } from '@/types/types.p';
 
 type ModelValue = string | Date | null | undefined;
 

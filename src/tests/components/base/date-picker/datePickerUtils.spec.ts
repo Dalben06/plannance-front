@@ -10,8 +10,8 @@ import {
   buildCalendarGrid,
   getWeekdayShortLabels,
   isDateInRange,
-  type WeekStartsOn,
 } from '@/components/base/date-picker/datePickerUtils'; // adjust path if needed
+import type { WeekStartsOn } from '@/types/types.p';
 
 describe('datePickerUtils', () => {
   it('normalizeToNoon sets time to 12:00:00.000', () => {
