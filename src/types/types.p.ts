@@ -15,3 +15,4 @@ export type CalendarDay = {
   income: number,
   id: string,
 }
+export type WeekStartsOn = 0 | 1;

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import CalendarSummary from '@/components/CalendarSummary.vue';
+import CalendarSummary from '@/components/calendar/CalendarSummary.vue';
 import CalendarMonth from '@/components/calendar/CalendarMonth.vue';
 import { useCalendarStore } from '@/stores/calendar';
 import { onMounted } from 'vue';
@@ -7,7 +7,7 @@ import { onMounted } from 'vue';
 const calendarStore = useCalendarStore();
 function generateDataRandom(month: number | undefined = undefined): void {
   const monthSelectedRaw = month ?? Math.floor(Math.random() * 12);
-  calendarStore.changeMonth(monthSelectedRaw);
+  calendarStore.month = monthSelectedRaw;
 }
 
 onMounted(() => {

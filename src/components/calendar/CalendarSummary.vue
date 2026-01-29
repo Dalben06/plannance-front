@@ -1,14 +1,19 @@
 <script lang="ts" setup>
 import { useCalendarStore } from '@/stores/calendar';
-import { formatCurrency } from '@/utils';
+import { formatCurrency } from '@/utils/calendar-utils';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+
 import { ChartBarIcon, ArrowTrendingUpIcon, ChartPieIcon, BanknotesIcon } from '@/ui/icons';
+import { useCalendarSummaryState } from '@/composable/calendar/useCalendarSummaryState';
 
 const { expenses, income, isLoading } = storeToRefs(useCalendarStore());
-const expenseFormatted = computed(() => isLoading.value ? 'Loading...' : formatCurrency(expenses.value));
-const incomeFormatted = computed(() => isLoading.value ? 'Loading...' : formatCurrency(income.value));
 
+const { expenseFormatted, incomeFormatted } = useCalendarSummaryState({
+  expenses,
+  income,
+  isLoading,
+  formatCurrency,
+});
 </script>
 
 <template>
@@ -30,7 +35,7 @@ const incomeFormatted = computed(() => isLoading.value ? 'Loading...' : formatCu
             <template v-if="isLoading">
               <span class="block h-6 w-32 rounded bg-white/10 animate-pulse" aria-hidden="true"></span>
             </template>
-            <template v-else>{{expenseFormatted}}</template>
+            <template v-else>{{ expenseFormatted }}</template>
           </p>
         </article>
 
@@ -49,7 +54,7 @@ const incomeFormatted = computed(() => isLoading.value ? 'Loading...' : formatCu
             <template v-if="isLoading">
               <span class="block h-6 w-28 rounded bg-white/10 animate-pulse" aria-hidden="true"></span>
             </template>
-            <template v-else>{{incomeFormatted}}</template>
+            <template v-else>{{ incomeFormatted }}</template>
           </p>
         </article>
 

@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 import type { Component } from 'vue';
-import { ChevronUpDownIcon } from '@heroicons/vue/24/outline';
+import { ChevronUpDownIcon } from '@/ui/icons';
 
-export type SelectOption<T = string | number> = {
+type Primitive = string | number;
+
+export type SelectOption<T extends Primitive = Primitive> = {
   label: string;
   value: T;
   disabled?: boolean;
 };
 
 type Size = 'sm' | 'md' | 'lg';
+type SelectModelValue = Primitive | '' | null | Primitive[];
 
 const props = withDefaults(
   defineProps<{
-    modelValue: any; // supports string | number | null | (string|number)[] when multiple
+    modelValue: SelectModelValue;
     options?: SelectOption[];
     label?: string;
     hint?: string;
     error?: string;
     placeholder?: string;
-    placeholderValue?: any; // default: ''
+    placeholderValue?: Primitive | ''; // default: ''
     id?: string;
     name?: string;
     disabled?: boolean;
@@ -36,11 +39,11 @@ const props = withDefaults(
     required: false,
     multiple: false,
     size: 'md',
-  }
+  },
 );
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void;
+  (e: 'update:modelValue', value: SelectModelValue): void;
   (e: 'blur', evt: FocusEvent): void;
   (e: 'focus', evt: FocusEvent): void;
   (e: 'change', evt: Event): void;
@@ -49,12 +52,12 @@ const emit = defineEmits<{
 const autoId = useId();
 const inputId = computed(() => props.id ?? `select-${autoId}`);
 
-const describedById = computed(() => {
-  if (!props.hint && !props.error) return undefined;
-  return `${inputId.value}-desc`;
-});
+const helpText = computed(() => props.error ?? props.hint ?? '');
+const hasHelpText = computed(() => helpText.value.length > 0);
 
-const valueProxy = computed({
+const describedById = computed(() => (hasHelpText.value ? `${inputId.value}-desc` : undefined));
+
+const valueProxy = computed<SelectModelValue>({
   get: () => props.modelValue,
   set: (v) => emit('update:modelValue', v),
 });
@@ -64,35 +67,24 @@ const baseSelect =
   'border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 ' +
   'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed';
 
-const sizeClass = computed(() => {
-  switch (props.size) {
-    case 'sm':
-      return 'h-9 text-sm rounded-xl px-3 pr-10';
-    case 'lg':
-      return 'h-11 text-base rounded-2xl px-4 pr-11';
-    case 'md':
-    default:
-      return 'h-10 text-sm rounded-2xl px-3.5 pr-10';
-  }
-});
+const sizeClasses: Record<Size, string> = {
+  sm: 'h-9 text-sm rounded-xl px-3 pr-10',
+  md: 'h-10 text-sm rounded-2xl px-3.5 pr-10',
+  lg: 'h-11 text-base rounded-2xl px-4 pr-11',
+};
 
-const errorClass = computed(() =>
-  props.error
-    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-    : ''
-);
+const errorClasses = 'border-red-300 focus:ring-red-500 focus:border-red-500';
 
-const withLeadingIcon = computed(() => (props.leadingIcon ? 'pl-10' : ''));
-
-const selectClasses = computed(
-  () =>
-    [
-      baseSelect,
-      sizeClass.value,
-      errorClass.value,
-      withLeadingIcon.value,
-      props.selectClass ?? '',
-    ].join(' ')
+const selectClasses = computed(() =>
+  [
+    baseSelect,
+    sizeClasses[props.size],
+    props.error ? errorClasses : '',
+    props.leadingIcon ? 'pl-10' : '',
+    props.selectClass ?? '',
+  ]
+    .filter(Boolean)
+    .join(' '),
 );
 </script>
 
@@ -131,9 +123,8 @@ const selectClasses = computed(
       </div>
     </div>
 
-    <p v-if="error || hint" :id="describedById" class="mt-1.5 text-sm"
-      :class="error ? 'text-red-600' : 'text-slate-500'">
-      {{ error ?? hint }}
+    <p v-if="hasHelpText" :id="describedById" class="mt-1.5 text-sm" :class="error ? 'text-red-600' : 'text-slate-500'">
+      {{ helpText }}
     </p>
   </div>
 </template>

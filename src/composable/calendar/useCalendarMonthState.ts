@@ -1,0 +1,47 @@
+import { computed, type ComputedRef, type Ref } from 'vue';
+import { addDays, makeDate, startOfWeek } from '@/utils/calendar-utils';
+import type { WeekStartsOn } from '@/types/types.p';
+
+export type CalendarMonthUtils = {
+  addDays: (d: Date, days: number) => Date;
+  makeDate: (y: number, m: number, d: number) => Date;
+  startOfWeek: (d: Date, weekStartsOn: WeekStartsOn) => Date;
+};
+
+const defaultUtils: CalendarMonthUtils = { addDays, makeDate, startOfWeek };
+
+export function useCalendarMonthState(params: {
+  month: Ref<number>; // 0..11
+  weekStartsOn: Ref<WeekStartsOn> | WeekStartsOn;
+  locale: Ref<string> | string;
+  now?: Ref<Date> | Date;
+  utils?: Partial<CalendarMonthUtils>;
+}): {
+  monthTitle: ComputedRef<string>;
+  weekdayLabels: ComputedRef<string[]>;
+} {
+  const utils: CalendarMonthUtils = { ...defaultUtils, ...(params.utils ?? {}) };
+
+  const nowRef = computed(() => (params.now instanceof Date ? params.now : params.now?.value ?? new Date()));
+  const localeRef = computed(() => (typeof params.locale === 'string' ? params.locale : params.locale.value));
+  const weekStartsOnRef = computed(() =>
+    typeof params.weekStartsOn === 'number' ? params.weekStartsOn : params.weekStartsOn.value,
+  );
+
+  const monthTitle = computed(() => {
+    const fmt = new Intl.DateTimeFormat(localeRef.value, { month: 'long', year: 'numeric' });
+    const year = nowRef.value.getFullYear();
+    return fmt.format(new Date(year, params.month.value, 1));
+  });
+
+  const weekdayLabels = computed(() => {
+    // deterministic base date (Sun Jan 4, 2026)
+    const base = utils.makeDate(2026, 0, 4);
+    const start = utils.startOfWeek(base, weekStartsOnRef.value);
+    const fmt = new Intl.DateTimeFormat(localeRef.value, { weekday: 'short' });
+
+    return Array.from({ length: 7 }, (_, i) => fmt.format(utils.addDays(start, i)));
+  });
+
+  return { monthTitle, weekdayLabels };
+}

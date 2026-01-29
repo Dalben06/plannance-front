@@ -1,5 +1,5 @@
-import type { CalendarDay, CalendarEvent } from "@/types.p";
-import { addDays, makeDate } from "@/utils";
+import type { CalendarDay, CalendarEvent } from "@/types/types.p";
+import { addDays, makeDate } from "@/utils/calendar-utils";
 
 type MockOptions = {
   minEventsPerDay?: number; // default 0

@@ -30,14 +30,12 @@ const router = useRouter();
 const auth = useAuthStore();
 const onLogin = handleLoginSubmit((values) => {
   // Implement login logic here, e.g., call auth store action
-  console.log('Logging in with', values);
   auth.setUser({ id: 'u-' + Date.now(), name: values.email, email: values.email });
   router.push({ path: '/calendar' }).catch(() => { });
 });
 
 const onLoginAsGuest = () => {
   // Implement guest login logic here
-  console.log('Logging in as guest');
   auth.loginAsDemo();
   router.push({ path: '/calendar' }).catch(() => { });
 };

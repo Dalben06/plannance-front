@@ -1,94 +1,32 @@
-<!-- src/views/AboutView.vue -->
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
+import type { Component } from 'vue';
 
-const router = useRouter();
-const year = new Date().getFullYear();
+type Principle = {
+  title: string;
+  desc: string;
+  icon: Component;
+};
 
-const mission = computed(
-  () =>
-    'Plannance helps you plan your money like a calendar—so you can see what’s coming, avoid surprises, and make better decisions with confidence.',
-);
+type RoadmapItem = {
+  title: string;
+  items: string[];
+  icon: Component;
+};
 
-const principles = [
-  {
-    title: 'Planning-first',
-    desc: 'Budgeting often looks backward. Plannance looks forward—what will happen, and when.',
-    icon: '🧭',
-  },
-  {
-    title: 'Clarity over complexity',
-    desc: 'Simple flows, clear totals, and a calendar view that makes decisions obvious.',
-    icon: '🔎',
-  },
-  {
-    title: 'Control & ownership',
-    desc: 'Your plan should feel safe and understandable. No hidden logic—just your numbers.',
-    icon: '🧾',
-  },
-  {
-    title: 'Fast to update',
-    desc: 'Change an event, see the impact instantly, and keep moving.',
-    icon: '⚡️',
-  },
-  {
-    title: 'Built for real life',
-    desc: 'Bills, paychecks, subscriptions, and one-time surprises—all in one place.',
-    icon: '🏡',
-  },
-  {
-    title: 'Privacy by default',
-    desc: 'Your financial planning is personal. We aim for minimal data and maximum transparency.',
-    icon: '🔒',
-  },
-];
+type FaqItem = {
+  q: string;
+  a: string;
+};
 
-const roadmap = [
-  {
-    title: 'Calendar cash flow',
-    items: ['Credits & debits by day', 'Monthly totals', 'Quick add / edit events'],
-    icon: '📅',
-  },
-  {
-    title: 'Recurring events',
-    items: ['Weekly / monthly repeats', 'Upcoming bill reminders', 'Edit series or single occurrence'],
-    icon: '🔁',
-  },
-  {
-    title: 'Categories & notes',
-    items: ['Tags for filtering', 'Search & quick filters', 'Optional notes for context'],
-    icon: '🏷️',
-  },
-  {
-    title: 'Insights',
-    items: ['Spending patterns', 'Projected end-of-month balance', 'Best/worst weeks overview'],
-    icon: '📈',
-  },
-];
-
-const faqs = [
-  {
-    q: 'What’s the difference between Plannance and a typical budgeting app?',
-    a: 'Plannance focuses on “when” money moves. Instead of only tracking categories, it shows cash flow on a calendar so you can anticipate tight days and plan ahead.',
-  },
-  {
-    q: 'Do I need to connect a bank account?',
-    a: 'No. You can plan manually with events. If you add account connections later, it should enhance—not replace—your planning flow.',
-  },
-  {
-    q: 'Is it only for monthly planning?',
-    a: 'Monthly is the core view, but the same approach works for weekly planning and recurring bills.',
-  },
-];
-
-function goToApp(): void {
-  router.push({ path: '/calendar' }).catch(() => { });
-}
-
-function goToHome(): void {
-  router.push({ path: '/' }).catch(() => { });
-}
+const props = defineProps<{
+  year: number;
+  mission: string;
+  principles: Principle[];
+  roadmap: RoadmapItem[];
+  faqs: FaqItem[];
+  onGoToApp?: () => void;
+  onGoToHome?: () => void;
+}>();
 </script>
 
 <template>
@@ -113,7 +51,7 @@ function goToHome(): void {
             <button type="button"
               class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white/85
                      hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(96,165,250,0.5)]"
-              @click="goToHome">
+              @click="props.onGoToHome?.()">
               ← Back to home
             </button>
 
@@ -127,7 +65,7 @@ function goToHome(): void {
             </h1>
 
             <p class="mt-3 max-w-3xl text-base text-white/75">
-              {{ mission }}
+              {{ props.mission }}
             </p>
 
             <div class="mt-6 flex flex-wrap gap-3">
@@ -136,14 +74,14 @@ function goToHome(): void {
                        transition active:translate-y-px
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(96,165,250,0.5)]"
                 style="background: linear-gradient(135deg, rgba(96,165,250,.95), rgba(167,139,250,.95));"
-                @click="goToApp">
+                @click="props.onGoToApp?.()">
                 Open app
               </button>
 
               <button type="button" class="inline-flex items-center justify-center rounded-xl border border-white/10 bg-transparent px-4 py-2 font-semibold
                        transition hover:bg-white/5 active:translate-y-px
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(96,165,250,0.5)]"
-                @click="goToHome">
+                @click="props.onGoToHome?.()">
                 Home
               </button>
             </div>
@@ -172,9 +110,9 @@ function goToHome(): void {
             </p>
 
             <div class="mt-4 grid gap-4 md:grid-cols-3">
-              <article v-for="p in principles" :key="p.title"
+              <article v-for="p in props.principles" :key="p.title"
                 class="rounded-3xl border border-white/10 bg-black/20 p-4">
-                <div class="text-xl" aria-hidden="true">{{ p.icon }}</div>
+                <component :is="p.icon" class="h-6 w-6 text-white/85" aria-hidden="true" />
                 <h3 class="mt-2 text-base font-bold">{{ p.title }}</h3>
                 <p class="mt-2 text-sm leading-relaxed text-white/70">{{ p.desc }}</p>
               </article>
@@ -195,12 +133,12 @@ function goToHome(): void {
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <article v-for="r in roadmap" :key="r.title" class="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <article v-for="r in props.roadmap" :key="r.title" class="rounded-3xl border border-white/10 bg-white/5 p-5">
             <div class="flex items-center gap-3">
-              <div class="grid h-10 w-10 place-items-center rounded-2xl text-base font-extrabold text-[#081022]"
+              <div class="grid h-10 w-10 place-items-center rounded-2xl text-[#081022]"
                 style="background: linear-gradient(135deg, rgba(34,211,238,.95), rgba(96,165,250,.95));"
                 aria-hidden="true">
-                {{ r.icon }}
+                <component :is="r.icon" class="h-5 w-5" aria-hidden="true" />
               </div>
               <h3 class="text-base font-bold tracking-tight">{{ r.title }}</h3>
             </div>
@@ -226,7 +164,8 @@ function goToHome(): void {
           <button type="button" class="inline-flex items-center justify-center rounded-xl border border-white/20 px-4 py-2 font-semibold text-[#081022]
                    transition active:translate-y-px
                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(96,165,250,0.5)]"
-            style="background: linear-gradient(135deg, rgba(96,165,250,.95), rgba(167,139,250,.95));" @click="goToApp">
+            style="background: linear-gradient(135deg, rgba(96,165,250,.95), rgba(167,139,250,.95));"
+            @click="props.onGoToApp?.()">
             Open calendar
           </button>
         </div>
@@ -242,7 +181,8 @@ function goToHome(): void {
         </div>
 
         <div class="grid gap-3">
-          <details v-for="item in faqs" :key="item.q" class="group rounded-3xl border border-white/10 bg-white/5 p-4">
+          <details v-for="item in props.faqs" :key="item.q"
+            class="group rounded-3xl border border-white/10 bg-white/5 p-4">
             <summary class="cursor-pointer select-none font-bold text-white/90">
               {{ item.q }}
             </summary>
@@ -259,18 +199,18 @@ function goToHome(): void {
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div class="font-extrabold tracking-tight">Plannance</div>
-          <div class="mt-1 text-xs text-white/60">© {{ year }} Plannance. All rights reserved.</div>
+          <div class="mt-1 text-xs text-white/60">© {{ props.year }} Plannance. All rights reserved.</div>
         </div>
 
         <div class="flex gap-2">
           <button type="button" class="rounded-xl px-3 py-2 text-sm font-semibold text-white/75 hover:bg-white/5
                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(96,165,250,0.5)]"
-            @click="goToHome">
+            @click="props.onGoToHome?.()">
             Home
           </button>
           <button type="button" class="rounded-xl px-3 py-2 text-sm font-semibold text-white/75 hover:bg-white/5
                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(96,165,250,0.5)]"
-            @click="goToApp">
+            @click="props.onGoToApp?.()">
             Start
           </button>
         </div>
