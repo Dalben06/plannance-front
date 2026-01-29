@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { parseInputValue, type ModelModifiers } from './input/parseInputValue';
+import { parseInputValue, type ModelModifiers } from '@/components/base/input/parseInputValue';
+import type { BaseInputSize, BaseInputSlots } from '@/components/base/BaseInput.types';
 
-type BaseInputSize = 'sm' | 'md' | 'lg';
+defineSlots<BaseInputSlots>();
 
 const props = withDefaults(
   defineProps<{

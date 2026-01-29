@@ -1,7 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type { CalendarEvent } from '@/types/types.p'
-// import { generateMockCalendarEvents } from '@/mocks/calendarMocks'
 
 export const useCalendarStore = defineStore('calendar', () => {
   const events = ref<CalendarEvent[]>([])
