@@ -37,8 +37,7 @@ const [title] = defineEventField('title');
 const [date] = defineEventField('date');
 const [amount] = defineEventField('amount');
 const [type] = defineEventField('type');
-const onAddEvent = handleEventSubmit((values) => {
-  console.log('Logging in with', values);
+const onAddEvent = handleEventSubmit(() => {
 });
 
 const options = [

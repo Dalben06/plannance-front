@@ -43,7 +43,6 @@ const [acceptTerms] = defineRegisterField('acceptTerms');
 const router = useRouter();
 const auth = useAuthStore();
 const onRegister = handleRegisterSubmit(async (values) => {
-  console.log('success');
   auth.setUser({ id: 'u-' + Date.now(), name: values.name, email: values.email });
   router.push({ path: '/calendar' }).catch(() => { });
 });

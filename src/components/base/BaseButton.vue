@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue';
+import { computed, useAttrs, useSlots } from 'vue';
 import { RouterLink } from 'vue-router';
 import type { Component } from 'vue';
 
@@ -15,7 +15,6 @@ const props = withDefaults(
     variant?: Variant;
     size?: Size;
 
-    // icons (Heroicons are Vue components)
     iconLeft?: Component;
     iconRight?: Component;
 
@@ -23,7 +22,6 @@ const props = withDefaults(
     disabled?: boolean;
     block?: boolean;
 
-    // only needed for icon-only buttons (accessibility)
     ariaLabel?: string;
   }>(),
   {
@@ -33,10 +31,11 @@ const props = withDefaults(
     loading: false,
     disabled: false,
     block: false,
-  }
+  },
 );
 
 const attrs = useAttrs();
+const slots = useSlots();
 
 const isDisabled = computed(() => props.disabled || props.loading);
 
@@ -46,18 +45,14 @@ const base =
   'disabled:opacity-60 disabled:pointer-events-none cursor-pointer ';
 
 const variantClasses: Record<Variant, string> = {
-  primary:
-    'bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-slate-900',
+  primary: 'bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-slate-900',
   secondary:
     'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 focus-visible:ring-slate-900',
-  ghost:
-    'bg-transparent text-slate-900 hover:bg-slate-100 focus-visible:ring-slate-900',
-  danger:
-    'bg-rose-600 text-white hover:bg-rose-500 focus-visible:ring-rose-600',
+  ghost: 'bg-transparent text-slate-900 hover:bg-slate-100 focus-visible:ring-slate-900',
+  danger: 'bg-rose-600 text-white hover:bg-rose-500 focus-visible:ring-rose-600',
   outline:
     'bg-transparent text-slate-900 border border-slate-200 hover:bg-slate-50 focus-visible:ring-slate-900',
-  link:
-    'bg-transparent text-slate-900 hover:text-slate-800 focus-visible:ring-slate-900',
+  link: 'bg-transparent text-slate-900 hover:text-slate-800 focus-visible:ring-slate-900',
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -77,18 +72,15 @@ const classes = computed(() => [
   variantClasses[props.variant],
   sizeClasses[props.size],
   props.block ? 'w-full' : '',
-  attrs.class ?? '',
 ]);
 
 const tag = computed(() => {
   if (props.as === 'router-link') return RouterLink;
-  return props.as; // 'button' | 'a'
+  return props.as;
 });
 
-// If user forgets ariaLabel on icon-only buttons, we still render,
-// but you should pass ariaLabel for accessibility.
 const computedAriaLabel = computed(() => {
-  const hasDefaultSlot = !!(attrs as any)?.default;
+  const hasDefaultSlot = !!slots.default;
   const iconOnly = !hasDefaultSlot && (props.iconLeft || props.iconRight);
   return iconOnly ? props.ariaLabel : undefined;
 });

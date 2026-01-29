@@ -1,23 +1,22 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import TheAboutContainer from '@/components/TheAboutContainer.vue';
+import { CalendarDaysIcon } from '@/ui/icons';
 
 describe('TheAboutContainer (props-driven)', () => {
   it('renders provided content and calls callbacks', async () => {
     const onGoToApp = vi.fn();
     const onGoToHome = vi.fn();
 
-    // simple icon component to pass as prop
-    const IconStub = { template: '<svg />' };
 
     const props = {
       year: 2026,
       mission: 'Test mission statement',
       principles: [
-        { title: 'Planning-first', desc: 'desc', icon: IconStub },
+        { title: 'Planning-first', desc: 'desc', icon: CalendarDaysIcon },
       ],
       roadmap: [
-        { title: 'Calendar cash flow', items: ['one', 'two'], icon: IconStub },
+        { title: 'Calendar cash flow', items: ['one', 'two'], icon: CalendarDaysIcon },
       ],
       faqs: [{ q: 'Q?', a: 'A.' }],
       onGoToApp,
@@ -26,9 +25,7 @@ describe('TheAboutContainer (props-driven)', () => {
 
     const wrapper = mount(TheAboutContainer, {
       props,
-      global: {
-        stubs: { IconStub },
-      },
+      global: {},
     });
 
     // Check main heading and mission

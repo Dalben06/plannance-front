@@ -26,4 +26,7 @@ export {
   HomeIcon,
   MagnifyingGlassIcon,
   ReceiptPercentIcon,
+  ArrowLeftIcon,
+  ChevronUpDownIcon,
+  XMarkIcon,
 } from '@heroicons/vue/24/outline';

@@ -1,10 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline';
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@/ui/icons';
+import {
+  addCalendarMonths,
+  buildCalendarGrid,
+  formatIsoDate,
+  getMonthStart,
+  getWeekdayShortLabels,
+  isDateInRange,
+  isSameCalendarDay,
+  normalizeToNoon,
+  parseDateValue,
+  type WeekStartsOn,
+} from './date-picker/datePickerUtils';
+
+type ModelValue = string | Date | null | undefined;
 
 const props = withDefaults(
   defineProps<{
-    modelValue: string | Date | null | undefined;
+    modelValue: ModelValue;
     label?: string;
     hint?: string;
     error?: string | boolean;
@@ -12,7 +26,7 @@ const props = withDefaults(
     disabled?: boolean;
     required?: boolean;
 
-    weekStartsOn?: 0 | 1; // 0=Sun, 1=Mon
+    weekStartsOn?: WeekStartsOn; // 0=Sun, 1=Mon
     min?: string | Date;
     max?: string | Date;
   }>(),
@@ -28,120 +42,73 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: string | Date | null): void;
 }>();
 
-function toDate(v: string | Date | null | undefined): Date | null {
-  if (!v) return null;
-  if (v instanceof Date) return new Date(v.getTime());
-  // Expect ISO-like "YYYY-MM-DD"
-  const [y, m, d] = v.split('-').map((x) => Number(x));
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d, 12, 0, 0, 0);
-}
+const isPopoverOpen = ref(false);
 
-function toIso(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
+const selectedDay = computed<Date | null>(() => parseDateValue(props.modelValue));
+const today = normalizeToNoon(new Date());
 
-function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
+const minAllowedDate = computed<Date | null>(() => parseDateValue(props.min));
+const maxAllowedDate = computed<Date | null>(() => parseDateValue(props.max));
 
-function startOfMonth(d: Date) {
-  return new Date(d.getFullYear(), d.getMonth(), 1, 12, 0, 0, 0);
-}
-
-function addMonths(d: Date, months: number) {
-  return new Date(d.getFullYear(), d.getMonth() + months, 1, 12, 0, 0, 0);
-}
-
-function startOfWeek(d: Date, weekStartsOn: 0 | 1) {
-  const x = new Date(d.getTime());
-  const day = x.getDay(); // 0..6
-  const diff = (day - weekStartsOn + 7) % 7;
-  x.setDate(x.getDate() - diff);
-  x.setHours(12, 0, 0, 0);
-  return x;
-}
-
-function buildMonthGrid(cursor: Date, weekStartsOn: 0 | 1) {
-  const first = startOfMonth(cursor);
-  const gridStart = startOfWeek(first, weekStartsOn);
-  const days: Date[] = [];
-  for (let i = 0; i < 42; i++) {
-    const d = new Date(gridStart.getTime());
-    d.setDate(gridStart.getDate() + i);
-    d.setHours(12, 0, 0, 0);
-    days.push(d);
-  }
-  return days;
-}
-
-function clampAllowed(d: Date) {
-  const min = toDate(props.min);
-  const max = toDate(props.max);
-  if (min && d < min) return false;
-  if (max && d > max) return false;
-  return true;
-}
-
-const open = ref(false);
-const selected = computed(() => toDate(props.modelValue));
-const today = new Date();
-
-const viewCursor = ref<Date>(selected.value ? startOfMonth(selected.value) : startOfMonth(today));
+const viewMonth = ref<Date>(
+  selectedDay.value ? getMonthStart(selectedDay.value) : getMonthStart(today),
+);
 
 watch(
   () => props.modelValue,
-  (v) => {
-    const d = toDate(v);
-    if (d) viewCursor.value = startOfMonth(d);
+  (nextValue) => {
+    const nextDate = parseDateValue(nextValue);
+    if (nextDate) viewMonth.value = getMonthStart(nextDate);
   },
 );
 
-const weekDays = computed(() => {
-  const labelsSun = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  if (props.weekStartsOn === 0) return labelsSun;
-  return [...labelsSun.slice(1), labelsSun[0]];
+const weekdayLabels = computed(() => getWeekdayShortLabels(props.weekStartsOn));
+const calendarDays = computed(() => buildCalendarGrid(viewMonth.value, props.weekStartsOn));
+
+const monthLabel = computed(() =>
+  new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' }).format(viewMonth.value),
+);
+
+const inputLabel = computed(() => {
+  if (!selectedDay.value) return '';
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  }).format(selectedDay.value);
 });
 
-const grid = computed(() => buildMonthGrid(viewCursor.value, props.weekStartsOn));
-const monthTitle = computed(() => {
-  return new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' }).format(viewCursor.value);
-});
+function isDateSelectable(day: Date): boolean {
+  return isDateInRange(day, minAllowedDate.value, maxAllowedDate.value);
+}
 
-const displayValue = computed(() => {
-  if (!selected.value) return '';
-  return new Intl.DateTimeFormat(undefined, { month: 'short', day: '2-digit', year: 'numeric' }).format(selected.value);
-});
+function closePopover(): void {
+  isPopoverOpen.value = false;
+}
 
-function pick(d: Date) {
-  if (!clampAllowed(d)) return;
-  // Emit the same shape the parent provided if possible.
-  // If parent passed a Date, emit a Date. Otherwise default to ISO string.
+function togglePopover(): void {
+  if (props.disabled) return;
+  isPopoverOpen.value = !isPopoverOpen.value;
+}
+
+function goToPreviousMonth(): void {
+  viewMonth.value = addCalendarMonths(viewMonth.value, -1);
+}
+
+function goToNextMonth(): void {
+  viewMonth.value = addCalendarMonths(viewMonth.value, 1);
+}
+
+function selectDate(day: Date): void {
+  if (!isDateSelectable(day)) return;
+
   const current = props.modelValue;
   if (current instanceof Date) {
-    emit('update:modelValue', new Date(d.getTime()));
+    emit('update:modelValue', new Date(day.getTime()));
   } else {
-    emit('update:modelValue', toIso(d));
+    emit('update:modelValue', formatIsoDate(day));
   }
-  open.value = false;
-}
-
-function prevMonth() {
-  viewCursor.value = addMonths(viewCursor.value, -1);
-}
-function nextMonth() {
-  viewCursor.value = addMonths(viewCursor.value, 1);
-}
-
-function toggle() {
-  if (props.disabled) return;
-  open.value = !open.value;
-}
-function close() {
-  open.value = false;
+  closePopover();
 }
 </script>
 
@@ -152,15 +119,15 @@ function close() {
       <span v-if="required" class="text-rose-500">*</span>
     </label>
 
-    <button type="button" class="w-full text-left" :disabled="disabled" @click="toggle">
+    <button data-testid="datepicker-trigger" type="button" class="w-full text-left" :disabled="disabled"
+      @click="togglePopover">
       <div class="flex items-center gap-2 rounded-2xl border bg-white px-3.5 py-2.5 text-sm shadow-sm transition
                placeholder:text-slate-400 focus-within:ring-2 focus-within:ring-slate-900/10
-               disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed" :class="[
-                error ? 'border-rose-300' : 'border-slate-200',
-              ]">
+               disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+        :class="[error ? 'border-rose-300' : 'border-slate-200']">
         <CalendarIcon class="h-5 w-5 text-slate-500" />
-        <span class="flex-1 truncate" :class="displayValue ? 'text-slate-900' : 'text-slate-400'">
-          {{ displayValue || placeholder }}
+        <span class="flex-1 truncate" :class="inputLabel ? 'text-slate-900' : 'text-slate-400'">
+          {{ inputLabel || placeholder }}
         </span>
         <span class="text-slate-500" aria-hidden="true">▾</span>
       </div>
@@ -174,45 +141,46 @@ function close() {
     </p>
 
     <!-- Popover -->
-    <div v-if="open" class="absolute z-40 mt-2 w-full max-w-sm rounded-2xl border border-slate-200 bg-white shadow-xl">
+    <div v-if="isPopoverOpen" data-testid="datepicker-popover"
+      class="absolute z-40 mt-2 w-full max-w-sm rounded-2xl border border-slate-200 bg-white shadow-xl">
       <div class="flex items-center justify-between gap-2 p-3 border-b border-slate-200">
-        <button type="button"
+        <button data-testid="datepicker-prev" type="button"
           class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-50"
-          @click="prevMonth">
+          @click="goToPreviousMonth">
           <ChevronLeftIcon class="h-5 w-5" />
         </button>
 
-        <div class="text-sm font-semibold text-slate-900">
-          {{ monthTitle }}
+        <div data-testid="datepicker-month-title" class="text-sm font-semibold text-slate-900">
+          {{ monthLabel }}
         </div>
 
-        <button type="button"
+        <button data-testid="datepicker-next" type="button"
           class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 hover:bg-slate-50"
-          @click="nextMonth">
+          @click="goToNextMonth">
           <ChevronRightIcon class="h-5 w-5" />
         </button>
       </div>
 
       <div class="p-3">
         <div class="grid grid-cols-7 gap-1 text-xs text-slate-500 mb-2">
-          <div v-for="d in weekDays" :key="d" class="text-center py-1">{{ d }}</div>
+          <div v-for="d in weekdayLabels" :key="d" class="text-center py-1">{{ d }}</div>
         </div>
 
         <div class="grid grid-cols-7 gap-1">
-          <button v-for="d in grid" :key="d.toISOString()" type="button" class="h-9 w-9 rounded-xl text-sm transition"
-            :class="[
-              d.getMonth() === viewCursor.getMonth() ? 'text-slate-900' : 'text-slate-400',
-              sameDay(d, today) ? 'ring-1 ring-slate-900/15' : '',
-              selected && sameDay(d, selected) ? 'bg-slate-900 text-white' : 'hover:bg-slate-100',
-              !clampAllowed(d) ? 'opacity-40 pointer-events-none' : '',
-            ]" @click="pick(d)">
-            {{ d.getDate() }}
+          <button v-for="day in calendarDays" :key="formatIsoDate(day)" type="button"
+            class="h-9 w-9 rounded-xl text-sm transition" :data-date="formatIsoDate(day)" :class="[
+              day.getMonth() === viewMonth.getMonth() ? 'text-slate-900' : 'text-slate-400',
+              isSameCalendarDay(day, today) ? 'ring-1 ring-slate-900/15' : '',
+              selectedDay && isSameCalendarDay(day, selectedDay) ? 'bg-slate-900 text-white' : 'hover:bg-slate-100',
+              !isDateSelectable(day) ? 'opacity-40 pointer-events-none' : '',
+            ]" @click="selectDate(day)">
+            {{ day.getDate() }}
           </button>
         </div>
 
         <div class="mt-3 flex justify-end">
-          <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"
-            @click="close">
+          <button data-testid="datepicker-close" type="button"
+            class="rounded-xl border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50" @click="closePopover">
             Close
           </button>
         </div>
@@ -220,4 +188,3 @@ function close() {
     </div>
   </div>
 </template>
-<style scoped></style>

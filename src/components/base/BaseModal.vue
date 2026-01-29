@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, watch } from 'vue';
-import { XMarkIcon } from '@heroicons/vue/24/outline';
+import { XMarkIcon } from '@/ui/icons';
 import BaseButton from '@/components/base/BaseButton.vue';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -28,45 +28,59 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
+const SIZE_CLASS: Record<ModalSize, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+};
+
 const panelClass = computed(() => {
   const base = 'w-[92vw] rounded-2xl bg-white shadow-xl border border-slate-200';
-  const map: Record<ModalSize, string> = {
-    sm: 'max-w-sm',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-  };
-  return `${base} ${map[props.size ?? 'md']}`;
+  return `${base} ${SIZE_CLASS[props.size]}`;
 });
 
-function close() {
+function emitClose() {
   emit('update:modelValue', false);
   emit('close');
 }
 
 function onOverlayClick() {
-  if (props.closeOnOverlay) close();
+  if (props.closeOnOverlay) emitClose();
 }
 
 function onKeydown(e: KeyboardEvent) {
   if (!props.modelValue) return;
-  if (props.closeOnEsc && e.key === 'Escape') close();
+  if (!props.closeOnEsc) return;
+  if (e.key !== 'Escape') return;
+  emitClose();
+}
+
+function setScrollLocked(locked: boolean) {
+  document.documentElement.classList.toggle('overflow-hidden', locked);
+}
+
+function addKeyListener() {
+  window.addEventListener('keydown', onKeydown);
+}
+
+function removeKeyListener() {
+  window.removeEventListener('keydown', onKeydown);
 }
 
 watch(
   () => props.modelValue,
   (open) => {
-    // lock scroll
-    document.documentElement.classList.toggle('overflow-hidden', open);
-    if (open) window.addEventListener('keydown', onKeydown);
-    else window.removeEventListener('keydown', onKeydown);
+    setScrollLocked(open);
+    if (open) addKeyListener();
+    else removeKeyListener();
   },
   { immediate: true },
 );
 
 onBeforeUnmount(() => {
-  document.documentElement.classList.remove('overflow-hidden');
-  window.removeEventListener('keydown', onKeydown);
+  setScrollLocked(false);
+  removeKeyListener();
 });
 </script>
 
@@ -77,7 +91,7 @@ onBeforeUnmount(() => {
       leave-to-class="opacity-0">
       <div v-if="modelValue" class="fixed inset-0 z-50">
         <!-- overlay -->
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="onOverlayClick" />
+        <div data-testid="overlay" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="onOverlayClick" />
 
         <!-- panel -->
         <div class="relative h-full w-full flex items-center justify-center p-4">
@@ -97,8 +111,8 @@ onBeforeUnmount(() => {
                   </p>
                 </div>
 
-                <base-button variant="ghost" @click="close" v-if="showClose" :icon-left="XMarkIcon"  aria-label="Close">
-                </base-button>
+                <BaseButton v-if="showClose" variant="ghost" :icon-left="XMarkIcon" aria-label="Close"
+                  @click="emitClose" />
               </div>
 
               <div class="p-5">
@@ -115,4 +129,3 @@ onBeforeUnmount(() => {
     </Transition>
   </Teleport>
 </template>
-<style scoped></style>
