@@ -5,11 +5,12 @@ import { BaseInput } from '@/components/base';
 
 type MountOpts = {
   props?: Record<string, unknown>;
-  slots?: Record<string, unknown>;
+  slots?: Record<string, string>;
 };
 
 const mountBaseInput = (opts: MountOpts = {}): VueWrapper => {
-  const { props = {}, slots = {} } = opts;
+  const { props, slots } = opts;
+
 
   return mount(BaseInput, {
     props: {

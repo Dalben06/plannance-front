@@ -72,7 +72,7 @@ import UseMenubar from '@/components/toolbar/UserMenubar.vue'; // adjust if need
 
 type MountOpts = {
   props?: Record<string, unknown>;
-  slots?: Record<string, unknown>;
+  slots?: Record<string, string>;
 };
 
 function mountMenu(opts: MountOpts = {}): VueWrapper {

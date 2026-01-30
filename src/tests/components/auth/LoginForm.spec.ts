@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import type { Ref } from 'vue';
 
 // Module-scoped mocks so tests can assert against them

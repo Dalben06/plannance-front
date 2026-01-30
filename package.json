@@ -1,6 +1,6 @@
 {
   "name": "plannance-front",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -14,7 +14,14 @@
     "test": "vitest run --coverage=true",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "lint": "eslint . --fix --cache"
+    "lint": "eslint . --fix --cache",
+    "prepare": "husky",
+    "lint:check": "eslint . --cache --max-warnings=0",
+    "check": "npm run lint:check && npm run type-check && npm run test"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,vue}": "eslint --fix",
+    "*.{json,md,css,scss,html}": "prettier --write"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
@@ -38,8 +45,10 @@
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "~10.6.2",
+    "husky": "^9.1.7",
     "jiti": "^2.6.1",
     "jsdom": "^27.4.0",
+    "lint-staged": "^16.2.7",
     "npm-run-all2": "^8.0.4",
     "sass-embedded": "^1.97.2",
     "tailwindcss": "^4.1.18",

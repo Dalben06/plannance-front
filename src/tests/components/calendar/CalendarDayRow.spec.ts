@@ -25,7 +25,7 @@ vi.mock('pinia', () => ({
 const TODAY_ISO = '2026-01-28T12:00:00.000Z';
 
 vi.mock('@/utils/calendar-utils', () => ({
-  atNoon: (_d: Date) => new Date(TODAY_ISO),
+  atNoon: () => new Date(TODAY_ISO),
   isSameDay: (a: Date, b: Date) =>
     a.getUTCFullYear() === b.getUTCFullYear() &&
     a.getUTCMonth() === b.getUTCMonth() &&
