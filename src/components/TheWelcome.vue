@@ -159,9 +159,8 @@ function goToDocs(): void {
                 <div class="mt-1 text-sm font-extrabold tracking-tight">$1,220</div>
               </div>
             </div>
-
             <p class="mt-3 text-xs text-white/60">
-              This is a simple preview card. Replace with your real calendar component when ready.
+              This is a simple preview card.  Replace with your real calendar component when ready.
             </p>
           </div>
         </div>
