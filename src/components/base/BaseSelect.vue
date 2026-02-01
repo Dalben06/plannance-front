@@ -12,7 +12,7 @@ export type SelectOption<T extends Primitive = Primitive> = {
 };
 
 type Size = 'sm' | 'md' | 'lg';
-type SelectModelValue = Primitive | '' | null | Primitive[];
+type SelectModelValue = Primitive | '' | null | unknown | Primitive[];
 
 const props = withDefaults(
   defineProps<{
