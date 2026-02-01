@@ -1,0 +1,23 @@
+services:
+  plannance-front:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: plannance-front
+    ports:
+      - "5173:5173"
+      - "9229:9229"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    networks:
+      - plannance-net
+
+networks:
+  plannance-net:
+    name: plannance-net
+    driver: bridge
