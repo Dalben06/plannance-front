@@ -4,9 +4,11 @@ import { effectScope, ref, nextTick } from 'vue';
 
 describe('useCalendarHeaderState', () => {
   function create(params: { month: number; isLoading: boolean }) {
+    const date = new Date(2026, params.month, 15);
     const store: CalendarHeaderStore = {
       month: params.month,
       goToday: vi.fn(),
+      date,
     };
 
     const currentMonth = ref(params.month);
@@ -26,20 +28,22 @@ describe('useCalendarHeaderState', () => {
     return { store, currentMonth, isLoading, state, scope };
   }
 
-  it('prevMonth sets store.month = currentMonth - 1 when not loading', () => {
+  it('prevMonth sets store.date to previous month when not loading', () => {
     const { store, state, scope } = create({ month: 10, isLoading: false });
 
     state.prevMonth();
-    expect(store.month).toBe(9);
+    expect(store.date.getMonth()).toBe(9);
+    expect(store.date.getFullYear()).toBe(2026);
 
     scope.stop();
   });
 
-  it('nextMonth sets store.month = currentMonth + 1 when not loading', () => {
+  it('nextMonth sets store.date to next month when not loading', () => {
     const { store, state, scope } = create({ month: 10, isLoading: false });
 
     state.nextMonth();
-    expect(store.month).toBe(11);
+    expect(store.date.getMonth()).toBe(11);
+    expect(store.date.getFullYear()).toBe(2026);
 
     scope.stop();
   });
@@ -53,14 +57,15 @@ describe('useCalendarHeaderState', () => {
     scope.stop();
   });
 
-  it('guards interactions when loading=true (no month change, no goToday)', () => {
+  it('guards interactions when loading=true (no date change, no goToday)', () => {
     const { store, state, scope } = create({ month: 10, isLoading: true });
+    const initialTime = store.date.getTime();
 
     state.prevMonth();
     state.nextMonth();
     state.goToday();
 
-    expect(store.month).toBe(10);
+    expect(store.date.getTime()).toBe(initialTime);
     expect(store.goToday).not.toHaveBeenCalled();
 
     scope.stop();
@@ -77,7 +82,7 @@ describe('useCalendarHeaderState', () => {
     expect(state.canInteract.value).toBe(true);
 
     state.nextMonth();
-    expect(store.month).toBe(11);
+    expect(store.date.getMonth()).toBe(11);
 
     scope.stop();
   });

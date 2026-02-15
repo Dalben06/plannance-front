@@ -1,34 +1,42 @@
 import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
-import type { CalendarEvent } from '@/types/types.p'
+import type { CalendarDay } from '@/types/types.p'
+import {getMouthEvents} from '@/api/calendar';
 
 export const useCalendarStore = defineStore('calendar', () => {
-  const events = ref<CalendarEvent[]>([])
-  const month = ref(new Date().getMonth()) // 0-11
+  const days = ref<CalendarDay[]>([])
+  const month = computed(() => date.value?.getMonth()); // 0-11
   const fetchingEvents = ref(false);
   const isLoading = computed(() => fetchingEvents.value);
-  const date = computed(() => {
-    return new Date(new Date().getFullYear(), month.value, 1)
-  })
+  const date = ref<Date>(new Date());
 
   function goToday() {
-    month.value = new Date().getMonth();
+    date.value = new Date();
   }
 
-  function getEventsFromMonth() {
-    events.value = []; // Fetch or filter events for the current month
+  function getMonth(){
+    const mo = date.value?.getMonth() + 1;
+    const string = mo.toString();
+    if(string.length > 1) return string;
+
+    return '0'+ string;
   }
+
+  const yearMonth = computed(() => {
+    return `${date.value.getFullYear()}-${getMonth()}`
+  });
+
+  async function getEventsFromMonth() {
+    days.value = await getMouthEvents(yearMonth.value);
+  }
+
   const expenses = computed(() => {
-    return sumAmounts(events.value.filter(event => event.type === 'debit'))
+    return days.value.reduce((sum, event) => sum + event.expense, 0) ?? 0
   })
 
   const income = computed(() => {
-    return sumAmounts(events.value.filter(event => event.type === 'credit'))
+    return days.value.reduce((sum, event) => sum + event.income, 0) ?? 0
   })
-
-  function sumAmounts(events: CalendarEvent[]) {
-    return events.reduce((sum, event) => sum + event.amount, 0)
-  }
 
   watch(month, async () => {
     fetchingEvents.value = true;
@@ -36,5 +44,5 @@ export const useCalendarStore = defineStore('calendar', () => {
     fetchingEvents.value = false;
   })
 
-  return { events, month, date, goToday, expenses, income, isLoading  }
+  return { days, month, date, goToday, expenses, income, isLoading, getEventsFromMonth  }
 })

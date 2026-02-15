@@ -4,6 +4,7 @@ export type CalendarHeaderStore = {
   // month is a store state property (number)
   month: number;
   goToday: () => void;
+  date: Date,
 };
 
 export function useCalendarHeaderState(params: {
@@ -22,12 +23,31 @@ export function useCalendarHeaderState(params: {
 
   function prevMonth(): void {
     if (!canInteract.value) return;
-    params.store.month = params.currentMonth.value - 1;
+
+    changeMonth(params.currentMonth.value - 1);
   }
 
   function nextMonth(): void {
     if (!canInteract.value) return;
-    params.store.month = params.currentMonth.value + 1;
+    changeMonth(params.currentMonth.value + 1);
+  }
+
+  function changeMonth(newMonth: number){
+    const date = params.store.date;
+    let year = date.getFullYear();
+
+    if(newMonth <= 0){
+      newMonth = 11;
+      year -= 1;
+    }
+
+    if(newMonth > 11){
+      newMonth = 0;
+      year += 1;
+    }
+
+    const newDate = new Date(year, newMonth, 1);
+    params.store.date = newDate;
   }
 
   function goToday(): void {

@@ -5,13 +5,9 @@ import { useCalendarStore } from '@/stores/calendar';
 import { onMounted } from 'vue';
 
 const calendarStore = useCalendarStore();
-function generateDataRandom(month: number | undefined = undefined): void {
-  const monthSelectedRaw = month ?? Math.floor(Math.random() * 12);
-  calendarStore.month = monthSelectedRaw;
-}
 
 onMounted(() => {
-  generateDataRandom();
+  calendarStore.getEventsFromMonth();
 });
 </script>
 

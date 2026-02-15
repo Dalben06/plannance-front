@@ -9,10 +9,15 @@ export type CalendarEvent = {
 };
 
 export type CalendarDay = {
-  date: Date,
+  date: Date | string,
   events: CalendarEvent[],
   expense: number,
   income: number,
   id: string,
 }
+
 export type WeekStartsOn = 0 | 1;
+
+export type ResponseAPI<T> = {
+  data: T,
+}

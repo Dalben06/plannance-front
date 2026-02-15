@@ -26,6 +26,14 @@ const TODAY_ISO = '2026-01-28T12:00:00.000Z';
 
 vi.mock('@/utils/calendar-utils', () => ({
   atNoon: () => new Date(TODAY_ISO),
+  toISODate: (d: Date | string) => (d instanceof Date ? d : new Date(d)),
+  toKey: (d: Date | string) => {
+    const date = d instanceof Date ? d : new Date(d);
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  },
   isSameDay: (a: Date, b: Date) =>
     a.getUTCFullYear() === b.getUTCFullYear() &&
     a.getUTCMonth() === b.getUTCMonth() &&

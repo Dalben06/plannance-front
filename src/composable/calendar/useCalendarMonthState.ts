@@ -12,6 +12,7 @@ const defaultUtils: CalendarMonthUtils = { addDays, makeDate, startOfWeek };
 
 export function useCalendarMonthState(params: {
   month: Ref<number>; // 0..11
+  year: Ref<number>;
   weekStartsOn: Ref<WeekStartsOn> | WeekStartsOn;
   locale: Ref<string> | string;
   now?: Ref<Date> | Date;
@@ -22,7 +23,6 @@ export function useCalendarMonthState(params: {
 } {
   const utils: CalendarMonthUtils = { ...defaultUtils, ...(params.utils ?? {}) };
 
-  const nowRef = computed(() => (params.now instanceof Date ? params.now : params.now?.value ?? new Date()));
   const localeRef = computed(() => (typeof params.locale === 'string' ? params.locale : params.locale.value));
   const weekStartsOnRef = computed(() =>
     typeof params.weekStartsOn === 'number' ? params.weekStartsOn : params.weekStartsOn.value,
@@ -30,8 +30,7 @@ export function useCalendarMonthState(params: {
 
   const monthTitle = computed(() => {
     const fmt = new Intl.DateTimeFormat(localeRef.value, { month: 'long', year: 'numeric' });
-    const year = nowRef.value.getFullYear();
-    return fmt.format(new Date(year, params.month.value, 1));
+    return fmt.format(new Date(params.year.value, params.month.value, 1));
   });
 
   const weekdayLabels = computed(() => {

@@ -21,12 +21,13 @@ const props = withDefaults(
 );
 
 const calendarStore = useCalendarStore();
-const { month } = storeToRefs(calendarStore);
+const { month,date } = storeToRefs(calendarStore);
 
 const { monthTitle, weekdayLabels } = useCalendarMonthState({
   month,
   weekStartsOn: computed(() => props.weekStartsOn),
   locale: toRef(props, 'locale'),
+  year: computed(() => date.value.getFullYear()),
 });
 </script>
 

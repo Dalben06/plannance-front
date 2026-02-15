@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { atNoon, isSameDay } from '@/utils/calendar-utils';
+import { atNoon, isSameDay, toISODate, toKey } from '@/utils/calendar-utils';
 import type { CalendarDay } from '@/types/types.p';
 import CalendarEventDay from '@/components/calendar/CalendarEventDay.vue';
 import CalendarSummaryDay from '@/components/calendar/CalendarSummaryDay.vue';
@@ -16,18 +16,24 @@ const props = defineProps<{
 
 const today = atNoon(new Date());
 
-function isOutsideMonth(d: Date): boolean {
+function isOutsideMonth(d: Date | string): boolean {
+  const date = toISODate(d);
+
   return (
-    d.getMonth() !== props.currentDate.getMonth() ||
-    d.getFullYear() !== props.currentDate.getFullYear()
+    date.getMonth() !== props.currentDate.getMonth() ||
+    date.getFullYear() !== props.currentDate.getFullYear()
   );
 }
 
-function isToday(d: Date): boolean {
+function isToday(d: Date | string): boolean {
   return isSameDay(d, today);
 }
 
-function cellClass(d: Date): string {
+function toKeyDate(d: Date | string): string {
+  return toKey(d);
+}
+
+function cellClass(d: Date | string): string {
   const classes: string[] = [];
   if (isToday(d)) {
     classes.push('ring-2 ring-[rgba(96,165,250,0.35)] shadow-[0_10px_30px_rgba(59,130,246,0.12)]');
@@ -36,13 +42,14 @@ function cellClass(d: Date): string {
   return classes.join(' ');
 }
 
-function dayBadgeClass(d: Date): string {
+function dayBadgeClass(d: Date | string): string {
   return isToday(d) ? 'bg-blue-500/10 text-blue-200' : 'bg-white/5 text-white/85';
 }
 </script>
 
 <template>
-  <div v-for="day in props.days" :key="day.id" role="gridcell" data-testid="day-cell" :data-day-id="day.id" class="min-h-0 rounded-2xl border border-white/10 bg-white/5 p-2
+  <div v-for="day in props.days" :key="toKeyDate(day.date)" role="gridcell" data-testid="day-cell"
+      class="min-h-32 rounded-2xl border border-white/10 bg-white/5 p-2
            shadow-[0_1px_2px_rgba(0,0,0,0.25)]
            transition hover:-translate-y-0.5 hover:bg-white/7 hover:border-[rgba(147,197,253,0.6)]
            hover:shadow-[0_10px_15px_rgba(0,0,0,0.35)]
@@ -54,7 +61,7 @@ function dayBadgeClass(d: Date): string {
       <template v-else>
         <span data-testid="day-number" class="grid h-8 w-8 place-items-center rounded-lg text-sm font-extrabold"
           :class="dayBadgeClass(day.date)">
-          {{ day.date.getDate() }}
+          {{ toISODate(day.date).getDate() }}
         </span>
       </template>
     </div>
